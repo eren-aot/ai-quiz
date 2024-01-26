@@ -10,9 +10,18 @@ import {
 } from "@/components/ui/card"
 import { Button } from '@/components/ui/button'
 import SignInButton from '@/components/SignInButton'
+import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
 
 
-export default function Home() {
+export default async function Home() {
+
+  const session = await getServerSession();
+  console.log(session)
+  if (session?.user) {
+    redirect("/dashboard");
+  }
+
   return (
     <div className='absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2'>
       <Card className='w-[300px]'>

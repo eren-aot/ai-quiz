@@ -12,11 +12,12 @@ export const metadata: Metadata = {
   description: 'Generate Quiz using AI',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+
   return (
     <html lang="en">
       <body className={cn(inter.className, "antialiased min-h-screen pt-16")}>
