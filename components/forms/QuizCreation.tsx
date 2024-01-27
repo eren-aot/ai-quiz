@@ -40,9 +40,12 @@ const QuizCreation = ({ topic: topicParams }: Props) => {
     const [showLoader, setShowLoader] = React.useState(false);
     const [finsishedLoading, setFinishedLoading] = React.useState(false);
     const { toast } = useToast();
-    // const {mutate: getQuestions,isLoading} =useMutation({
-    //     mutationFn: async (topic: string) => {
-    // })
+    const { mutate: getQuestions, isLoading } = useMutation({
+        mutationFn: async ({ amount, topic, type }: Input) => {
+            const response = await axios.post("/api/game", { amount, topic, type })
+            return response.data;
+        },
+    });
 
     const form = useForm<Input>({
         resolver: zodResolver(quizCreationSchema),
@@ -53,11 +56,41 @@ const QuizCreation = ({ topic: topicParams }: Props) => {
         }
     })
     const onSubmit = async (data: Input) => {
+        setShowLoader(true);
 
-        console.log(data);
-    }
+        getQuestions(data, {
+            onError: (error) => {
+                setShowLoader(false);
+                if (error instanceof AxiosError) {
+                    if (error.response?.status === 500) {
+                        console.log(error)
+                        toast({
+                            title: "Error",
+                            description: "Something went wrong.Please try again later",
+                            variant: "destructive",
+                        });
+                    }
+                }
+            },
+            onSuccess: ({ gameId }: { gameId: string }) => {
+                setFinishedLoading(true);
+                setTimeout(() => {
+                    if (form.getValues("type") === "mcq") {
+                        router.push(`/play/mcq/${gameId}`);
+                    } else if (form.getValues("type") === "open_ended") {
+                        router.push(`/play/open_ended/${gameId}`);
+                    }
+                }, 2000);
+            },
+        });
+    };
 
     form.watch();
+
+    if (showLoader) {
+
+        return <div><p>Loading Questions</p></div>
+    }
 
     return (
         <div className="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
@@ -121,7 +154,7 @@ const QuizCreation = ({ topic: topicParams }: Props) => {
                                 >
                                     <CopyCheck className="h-4 w-4 mr-2" />Mutiple Choices
                                 </Button>
-                                <Separator orientation="vertical"/>
+                                <Separator orientation="vertical" />
                                 <Button
                                     variant={
                                         form.getValues("type") === "open_ended" ? "default" : "secondary"
@@ -131,10 +164,10 @@ const QuizCreation = ({ topic: topicParams }: Props) => {
                                         form.setValue("type", "open_ended");
                                     }}
                                 >
-                                    <CopyCheck className="h-4 w-4 mr-2" />Open Ended
+                                    <BookOpen className="h-4 w-4 mr-2" />Open Ended
                                 </Button>
                             </div>
-                            <Button type="submit" >
+                            <Button type="submit" disabled={isLoading} >
                                 Submit
                             </Button>
                         </form>

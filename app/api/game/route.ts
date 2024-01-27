@@ -3,7 +3,6 @@ import { getAuthSession } from "@/lib/nextauth";
 import { quizCreationSchema } from "@/schemas/forms/quiz";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-
 import axios from "axios";
 
 export async function POST(req: Request, res: Response) {
@@ -27,13 +26,14 @@ export async function POST(req: Request, res: Response) {
         });
 
         const { data } = await axios.post(
-            `${process.env.API_URL as string}/api/questions}`,
+            `${process.env.API_URL}/api/questions`,
             {
                 amount,
                 topic,
                 type,
             }
         );
+        console.log(data);
 
         if (type === "mcq") {
 
@@ -42,7 +42,17 @@ export async function POST(req: Request, res: Response) {
                 answer: string;
                 options: string[];
             }
-            const manyData = data.questions.map((question: mcqQuestion) => {
+            // Parse the JSON string within the "questions" property
+            const parsedQuestions = JSON.parse(data.questions);
+            console.log(parsedQuestions)
+
+            // Access the array of questions
+            const questionsArray = parsedQuestions.questions;
+
+            // Log the entire array
+            console.log(questionsArray);
+
+            const manyData = questionsArray.map((question: mcqQuestion) => {
 
                 return {
                     question: question.question,
@@ -77,7 +87,6 @@ export async function POST(req: Request, res: Response) {
             });
 
         }
-
         return NextResponse.json({ gameId: game.id, message: "Game created successfully !!" }, { status: 200 });
 
     } catch (error) {
