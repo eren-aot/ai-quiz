@@ -34,24 +34,25 @@ export async function POST(req: Request, res: Response) {
             }
         );
         console.log(data);
-        // Parse the JSON string within the "questions" property
-        const parsedQuestions = JSON.parse(data.questions);
-        console.log(parsedQuestions)
 
-        // Access the array of questions
-        const questionsArray = parsedQuestions.questions;
-
-        // Log the entire array
-        console.log(questionsArray);
 
         if (type === "mcq") {
+            // Parse the JSON string within the "questions" property
+            const parsedQuestions = JSON.parse(data.questions);
+            console.log(parsedQuestions)
+
+            // Access the array of questions
+            const questionsArray = parsedQuestions.questions;
+
+            // Log the entire array
+            console.log(questionsArray);
 
             type mcqQuestion = {
                 question: string;
                 answer: string;
                 options: string[];
             }
-            
+
 
             const manyData = questionsArray.map((question: mcqQuestion) => {
 
@@ -68,12 +69,20 @@ export async function POST(req: Request, res: Response) {
                 data: manyData,
             });
         } else if (type === "open_ended") {
+            // Parse the JSON string within the "questions" property
+            const parsedData = JSON.parse(data.questions);
+
+            // Access the array of Q&A pairs
+            const qaArray = parsedData['Q&A'];
+
+            // Log the entire array
+            console.log(qaArray);
 
             type openEndedQuestion = {
                 question: string;
                 answer: string;
             }
-            const manyData = questionsArray.map((question: openEndedQuestion) => {
+            const manyData = qaArray.map((question: openEndedQuestion) => {
 
                 return {
                     question: question.question,
