@@ -10,7 +10,7 @@ const HistoryCard = () => {
   return (
     <Card
       className='hover:cursor-pointer hover:opacity-75'
-      onClick={() => router.push("/quiz")}
+      onClick={() => router.push("/history")}
     >
       <CardHeader className='flex flex-row items-center justify-between pb-2 space-y-0'>
         <CardTitle className='text-2xl font-bold'>
